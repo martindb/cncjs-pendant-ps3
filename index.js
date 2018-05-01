@@ -188,14 +188,14 @@ module.exports = function(options, callback) {
 		ps3_rumble_left = 0;
 		ps3_rumble_right = 0;
 
-    // Flags to control hold/repeat
-    var holdY = false;
-    var holdX = false;
-    var holdZ = false;
+		// Flags to control hold/repeat
+		var holdY = false;
+		var holdX = false;
+		var holdZ = false;
 
-    // Delays to repeat
-    var firstRepeat = 500;
-    var repeat = 250;
+		// Delays to repeat
+		var firstRepeat = 500;
+		var repeat = 250;
 
 		// psx
 		var psx = false;
@@ -327,19 +327,19 @@ module.exports = function(options, callback) {
 		controller.on('triangle:press', function(data) {
 			if (r1) {
 				move_z_axis += 0.25;
-        holdZ = false;
-        setTimeout(function() {
-          holdZ = true;
-        }, firstRepeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, firstRepeat);
 			}
 		});
 		controller.on('triangle:hold', function(data) {
 			if (r1 && holdZ) {
 				move_z_axis += 0.25;
-        holdZ = false;
-        setTimeout(function() {
-         holdZ = true;
-       }, repeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, repeat);
 			}
 		});
 		controller.on('triangle:release', function(data) {
@@ -367,19 +367,19 @@ module.exports = function(options, callback) {
 		controller.on('circle:press', function(data) {
 			if (r1) {
 				move_z_axis -= 0.05;
-        holdZ = false;
-        setTimeout(function() {
-          holdZ = true;
-        }, firstRepeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, firstRepeat);
 			}
 		});
 		controller.on('circle:hold', function(data) {
 			if (r1 && holdZ) {
 				move_z_axis -= 0.05;
-        holdZ = false;
-        setTimeout(function() {
-         holdZ = true;
-       }, repeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, repeat);
 			}
 		});
 		controller.on('circle:release', function(data) {
@@ -392,19 +392,19 @@ module.exports = function(options, callback) {
 		controller.on('x:press', function(data) {
 			if (r1) {
 				move_z_axis -= 0.25;
-        holdZ = false;
-        setTimeout(function() {
-          holdZ = true;
-        }, firstRepeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, firstRepeat);
 			}
 		});
 		controller.on('x:hold', function(data) {
 			if (r1 && holdZ) {
 				move_z_axis -= 0.25;
-        holdZ = false;
-        setTimeout(function() {
-         holdZ = true;
-        }, repeat);
+				holdZ = false;
+				setTimeout(function() {
+					holdZ = true;
+				}, repeat);
 			}
 		});
 		controller.on('x:release', function(data) {
@@ -619,21 +619,21 @@ module.exports = function(options, callback) {
 		// Y Up
 		controller.on('dpadUp:press', function(data) {
 			dpad('Y', true, data);
-      holdY= false;
-      setTimeout(function() {
-        holdY = true;
-      }, firstRepeat);
+			holdY= false;
+			setTimeout(function() {
+				holdY = true;
+			}, firstRepeat);
 		});
 		controller.on('dpadUp:hold', function(data) {
-      if (holdY) {
-         dpad('Y', true, data);
-         holdY = false;
-         setTimeout(function() {
-   				holdY = true;
-        }, repeat);
-       };
+			if (holdY) {
+				dpad('Y', true, data);
+				holdY = false;
+				setTimeout(function() {
+   					holdY = true;
+				}, repeat);
+			};
 		});
-    controller.on('dpadUp:release', function(data) {
+    		controller.on('dpadUp:release', function(data) {
 			move_y_axis = 0;
 		});
 
@@ -648,10 +648,10 @@ module.exports = function(options, callback) {
 		controller.on('dpadDown:hold', function(data) {
 			if (holdY) {
 				dpad('Y', false, data);
-        holdY = false;
-        setTimeout(function() {
-         holdY = true;
-       }, repeat);
+				holdY = false;
+				setTimeout(function() {
+					holdY = true;
+				}, repeat);
 			};
 		});
 
@@ -662,44 +662,44 @@ module.exports = function(options, callback) {
 		// X Right
 		controller.on('dpadRight:press', function(data) {
 			dpad('X', true, data);
-      holdX= false;
-      setTimeout(function() {
-        holdX = true;
-      }, firstRepeat);
+			holdX= false;
+			setTimeout(function() {
+				holdX = true;
+			}, firstRepeat);
 		});
 		controller.on('dpadRight:hold', function(data) {
-      if (holdX) {
-        dpad('X', true, data);
-        holdX = false;
-        setTimeout(function() {
-         holdX = true;
-        }, repeat);
-      };
+			if (holdX) {
+				dpad('X', true, data);
+				holdX = false;
+				setTimeout(function() {
+					holdX = true;
+				}, repeat);
+			};
 		});
-    controller.on('dpadRight:release', function(data) {
+    		controller.on('dpadRight:release', function(data) {
 			move_x_axis = 0;
 		});
 
 		// X Left
 		controller.on('dpadLeft:press', function(data) {
 			dpad('X', false, data);
-      holdX= false;
-      setTimeout(function() {
-        holdX = true;
-      }, firstRepeat);
+			holdX= false;
+			setTimeout(function() {
+				holdX = true;
+			}, firstRepeat);
 		});
 		controller.on('dpadLeft:hold', function(data) {
-       if (holdX) {
-         dpad('X', false, data);
-         holdX = false;
-         setTimeout(function() {
-          holdX = true;
-         }, repeat);
-       };
+			if (holdX) {
+				dpad('X', false, data);
+				holdX = false;
+				setTimeout(function() {
+					holdX = true;
+				}, repeat);
+			};
 		});
-    controller.on('dpadLeft:release', function(data) {
-      move_x_axis = 0;
-    });
+    		controller.on('dpadLeft:release', function(data) {
+			move_x_axis = 0;
+		});
 
 		// ------------------------------------------
 
