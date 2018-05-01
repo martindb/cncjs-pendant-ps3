@@ -188,6 +188,15 @@ module.exports = function(options, callback) {
 		ps3_rumble_left = 0;
 		ps3_rumble_right = 0;
 
+    // Flags to control hold/repeat
+    var holdY = false;
+    var holdX = false;
+    var holdZ = false;
+
+    // Delays to repeat
+    var firstRepeat = 500;
+    var repeat = 250;
+
 		// psx
 		var psx = false;
 		controller.on('psxButton:press', function(data) {
@@ -318,11 +327,19 @@ module.exports = function(options, callback) {
 		controller.on('triangle:press', function(data) {
 			if (r1) {
 				move_z_axis += 0.25;
+        holdZ = false;
+        setTimeout(function() {
+          holdZ = true;
+        }, firstRepeat);
 			}
 		});
 		controller.on('triangle:hold', function(data) {
-			if (r1) {
+			if (r1 && holdZ) {
 				move_z_axis += 0.25;
+        holdZ = false;
+        setTimeout(function() {
+         holdZ = true;
+       }, repeat);
 			}
 		});
 		controller.on('triangle:release', function(data) {
@@ -350,11 +367,19 @@ module.exports = function(options, callback) {
 		controller.on('circle:press', function(data) {
 			if (r1) {
 				move_z_axis -= 0.05;
+        holdZ = false;
+        setTimeout(function() {
+          holdZ = true;
+        }, firstRepeat);
 			}
 		});
 		controller.on('circle:hold', function(data) {
-			if (r1) {
+			if (r1 && holdZ) {
 				move_z_axis -= 0.05;
+        holdZ = false;
+        setTimeout(function() {
+         holdZ = true;
+       }, repeat);
 			}
 		});
 		controller.on('circle:release', function(data) {
@@ -367,11 +392,19 @@ module.exports = function(options, callback) {
 		controller.on('x:press', function(data) {
 			if (r1) {
 				move_z_axis -= 0.25;
+        holdZ = false;
+        setTimeout(function() {
+          holdZ = true;
+        }, firstRepeat);
 			}
 		});
 		controller.on('x:hold', function(data) {
-			if (r1) {
+			if (r1 && holdZ) {
 				move_z_axis -= 0.25;
+        holdZ = false;
+        setTimeout(function() {
+         holdZ = true;
+        }, repeat);
 			}
 		});
 		controller.on('x:release', function(data) {
@@ -500,6 +533,7 @@ module.exports = function(options, callback) {
 		var move_y_axis = 0;
 		var move_z_axis = 0;
 
+
 		// Set Movement of Gantry Based on DPad, and Z-Imput from other buttons
 		function dpad(axis, direction, name) {
 			if (l2) {
@@ -560,6 +594,7 @@ module.exports = function(options, callback) {
 		}
 
 		// Move Gantry X | Y
+		///setInterval(dpadMoveAxis, 200);
 		setInterval(dpadMoveAxis, 100);
 		function dpadMoveAxis() {
 			// Check if Axis Needs Moving
@@ -583,10 +618,20 @@ module.exports = function(options, callback) {
 
 		// Y Up
 		controller.on('dpadUp:press', function(data) {
-			dpad('Y', true, data)
+			dpad('Y', true, data);
+      holdY= false;
+      setTimeout(function() {
+        holdY = true;
+      }, firstRepeat);
 		});
 		controller.on('dpadUp:hold', function(data) {
-			dpad('Y', true, data)
+      if (holdY) {
+         dpad('Y', true, data);
+         holdY = false;
+         setTimeout(function() {
+   				holdY = true;
+        }, repeat);
+       };
 		});
     controller.on('dpadUp:release', function(data) {
 			move_y_axis = 0;
@@ -594,21 +639,42 @@ module.exports = function(options, callback) {
 
 		// Y Down
 		controller.on('dpadDown:press', function(data) {
-			dpad('Y', false, data)
+			dpad('Y', false, data);
+			holdY= false;
+			setTimeout(function() {
+				holdY = true;
+			}, firstRepeat);
 		});
 		controller.on('dpadDown:hold', function(data) {
-			dpad('Y', false, data)
+			if (holdY) {
+				dpad('Y', false, data);
+        holdY = false;
+        setTimeout(function() {
+         holdY = true;
+       }, repeat);
+			};
 		});
+
     controller.on('dpadDown:release', function(data) {
 			move_y_axis = 0;
 		});
 
 		// X Right
 		controller.on('dpadRight:press', function(data) {
-			dpad('X', true, data)
+			dpad('X', true, data);
+      holdX= false;
+      setTimeout(function() {
+        holdX = true;
+      }, firstRepeat);
 		});
 		controller.on('dpadRight:hold', function(data) {
-			dpad('X', true, data)
+      if (holdX) {
+        dpad('X', true, data);
+        holdX = false;
+        setTimeout(function() {
+         holdX = true;
+        }, repeat);
+      };
 		});
     controller.on('dpadRight:release', function(data) {
 			move_x_axis = 0;
@@ -616,10 +682,20 @@ module.exports = function(options, callback) {
 
 		// X Left
 		controller.on('dpadLeft:press', function(data) {
-			dpad('X', false, data)
+			dpad('X', false, data);
+      holdX= false;
+      setTimeout(function() {
+        holdX = true;
+      }, firstRepeat);
 		});
 		controller.on('dpadLeft:hold', function(data) {
-			dpad('X', false, data)
+       if (holdX) {
+         dpad('X', false, data);
+         holdX = false;
+         setTimeout(function() {
+          holdX = true;
+         }, repeat);
+       };
 		});
     controller.on('dpadLeft:release', function(data) {
       move_x_axis = 0;
@@ -639,7 +715,7 @@ module.exports = function(options, callback) {
 			}
 		});
 
-		// Stop Spendle
+		// Stop Spindle
 		controller.on('r2:release', function(data) {
 			if (!psx && spindle) {
 				socket.emit('command', options.port, 'gcode', 'M5');
@@ -651,7 +727,7 @@ module.exports = function(options, callback) {
 		// ------------------------------------------
 
 		// Analog Sticks
-		var stick_sensitivity = 1; // Do not set bellow 1
+		var stick_sensitivity = 2; // Do not set bellow 1
 
 		var left_x = 0;
 			left_y = 0;
@@ -744,7 +820,7 @@ module.exports = function(options, callback) {
 		}
 
 		// Move Gantry bassed on Sticks at a regualr interval
-		setInterval(stickMovment, 50);
+		setInterval(stickMovment, 100);
 
 		// Move X & Y base on X & Y Stick Movments
 		function stickMovment() {
@@ -796,10 +872,11 @@ module.exports = function(options, callback) {
 */
 		// ------------------------------------------
 
+/* It's not working with PS3 clone controller
 		// Send Extras Updates
 		setInterval(updateControllerExtras, 500);
 		function updateControllerExtras() {
-			controller.setExtras({
+				controller.setExtras({
 				rumbleLeft:  ps3_rumble_left,   // 0-1 (Rumble left on/off)
 				rumbleRight: ps3_rumble_right,   // 0-255 (Rumble right intensity)
 				led: ps3_led // 2 | 4 | 8 | 16 (Leds 1-4 on/off, bitmasked)
@@ -808,7 +885,9 @@ module.exports = function(options, callback) {
 			//console.log("ps3_rumble_left: " + ps3_rumble_left);
 			//console.log("ps3_rumble_right: " + ps3_rumble_right);
 		}
+*/
 
+/* Not in use because the above comment
 		//controller status
 		//as of version 0.6.2 you can get the battery %, if the controller is connected and if the controller is charging
 		var battery_level = 0;
@@ -836,6 +915,8 @@ module.exports = function(options, callback) {
 		}
 
 		});
+*/
+
 		controller.on('connection:change', function (value) {
 			console.log('connection:change:' + value);
 		});
