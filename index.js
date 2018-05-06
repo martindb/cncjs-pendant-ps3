@@ -7,6 +7,7 @@
 // [PS3 CNC Control Button Map](https://docs.google.com/drawings/d/1DMzfBk5DSvjJ082FrerrfmpL19-pYAOcvcmTbZJJsvs/edit?usp=sharing)
 // USAGE: ./cncjs-pendant-ps3 -p "/dev/ttyUSB0"
 
+
 // [Dependacies]
 const fs = require('fs');
 const path = require('path');
@@ -30,34 +31,33 @@ const dualShock = require('dualshock-controller'); // https://www.npmjs.com/pack
 // =====================================================
 // Generate Token
 const generateAccessToken = function(payload, secret, expiration) {
-    const token = jwt.sign(payload, secret, {
-        expiresIn: expiration
-    });
-
-    return token;
+	const token = jwt.sign(payload, secret, {
+		expiresIn: expiration
+	});
+	return token;
 };
 
 // Get secret key from the config file and generate an access token
 const getUserHome = function() {
-    return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
+	return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
 };
 
 // Pass User Defined Options
 module.exports = function(options, callback) {
-    options = options || {};
-    options.secret = get(options, 'secret', process.env['CNCJS_SECRET']);
-    options.baudrate = get(options, 'baudrate', 115200);
-    options.socketAddress = get(options, 'socketAddress', 'localhost');
-    options.socketPort = get(options, 'socketPort', 8000);
-    options.controllerType = get(options, 'controllerType', 'Grbl');
-    options.accessTokenLifetime = get(options, 'accessTokenLifetime', '30d');
+	options = options || {};
+	options.secret = get(options, 'secret', process.env['CNCJS_SECRET']);
+	options.baudrate = get(options, 'baudrate', 115200);
+	options.socketAddress = get(options, 'socketAddress', 'localhost');
+	options.socketPort = get(options, 'socketPort', 8000);
+	options.controllerType = get(options, 'controllerType', 'Grbl');
+	options.accessTokenLifetime = get(options, 'accessTokenLifetime', '30d');
 
-    var pendant_started = false;
+	var pendant_started = false;
 
-    // Logging Message
-    console.log("Waiting for Pendant to connect... please press the PS button on the DS3 controller.");
+	// Logging Message
+	console.log("Waiting for Pendant to connect... please press the PS button on the DS3 controller.");
 
-    // [Function] check for controller to conect (show up in devices), then start services. Kill services on disconect.
+	// [Function] check for controller to conect (show up in devices), then start services. Kill services on disconect.
 	setInterval(checkController, 3*1000);
 	function checkController(socket, controller) {
 		//console.log('Checkign Controller Status');
@@ -85,56 +85,54 @@ module.exports = function(options, callback) {
 	// Start Socket Connection & Controller Conection
 	function connectPendant () {
 		if (!options.secret) {
-	        const cncrc = path.resolve(getUserHome(), '.cncrc');
-	        try {
-	            const config = JSON.parse(fs.readFileSync(cncrc, 'utf8'));
-	            options.secret = config.secret;
-	        } catch (err) {
-	            console.error(err);
-	            process.exit(1);
-	        }
-	    }
+			const cncrc = path.resolve(getUserHome(), '.cncrc');
+			try {
+				const config = JSON.parse(fs.readFileSync(cncrc, 'utf8'));
+				options.secret = config.secret;
+			} catch (err) {
+				console.error(err);
+				process.exit(1);
+			}
+		}
 
-	    const token = generateAccessToken({ id: '', name: 'cncjs-pendant' }, options.secret, options.accessTokenLifetime);
-	    const url = 'ws://' + options.socketAddress + ':' + options.socketPort + '?token=' + token;
+		const token = generateAccessToken({ id: '', name: 'cncjs-pendant' }, options.secret, options.accessTokenLifetime);
+		const url = 'ws://' + options.socketAddress + ':' + options.socketPort + '?token=' + token;
 
-	    socket = io.connect('ws://' + options.socketAddress + ':' + options.socketPort, {
-	        'query': 'token=' + token
-	    });
+		socket = io.connect('ws://' + options.socketAddress + ':' + options.socketPort, {
+			'query': 'token=' + token
+		});
 
-	    socket.on('connect', () => {
-	        console.log('Connected to ' + url);
+		socket.on('connect', () => {
+			console.log('Connected to ' + url);
 
-	        // Open port
-	        socket.emit('open', options.port, {
-	            baudrate: Number(options.baudrate),
-	            controllerType: options.controllerType
-	        });
-	    });
+			// Open port
+			socket.emit('open', options.port, {
+				baudrate: Number(options.baudrate),
+				controllerType: options.controllerType
+			});
+		});
 
-	    socket.on('error', (err) => {
-	        console.error('Connection error.');
-	        if (socket) {
-	            socket.destroy();
-	            socket = null;
-	        }
-	    });
+		socket.on('error', (err) => {
+			console.error('Connection error.');
+			if (socket) {
+				socket.destroy();
+				socket = null;
+			}
+		});
 
-	    socket.on('close', () => {
-	        console.log('Connection closed.');
-	    });
+		socket.on('close', () => {
+			console.log('Connection closed.');
+		});
 
-	    socket.on('serialport:open', function(options) {
-	        options = options || {};
+		socket.on('serialport:open', function(options) {
+			options = options || {};
+			console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
+			callback(null, socket);
+		});
 
-	        console.log('Connected to port "' + options.port + '" (Baud rate: ' + options.baudrate + ')');
-
-	        callback(null, socket);
-	    });
-
-	    socket.on('serialport:error', function(options) {
-	        callback(new Error('Error opening serial port "' + options.port + '"'));
-	    });
+		socket.on('serialport:error', function(options) {
+			callback(new Error('Error opening serial port "' + options.port + '"'));
+		});
 
 		/*
 	    socket.on('serialport:read', function(data) {
@@ -195,7 +193,7 @@ module.exports = function(options, callback) {
 
 		// Delays to repeat
 		var firstRepeat = 500;
-		var repeat = 250;
+		var repeat = 0;
 
 		// psx
 		var psx = false;
@@ -345,6 +343,9 @@ module.exports = function(options, callback) {
 		controller.on('triangle:release', function(data) {
 			if (r1) {
 				move_z_axis = 0;
+				if (holdZ) {
+					socket.emit('command', options.port, 'gcode', '\x85');
+				}
 			}
 		});
 
@@ -385,6 +386,9 @@ module.exports = function(options, callback) {
 		controller.on('circle:release', function(data) {
 			if (r1) {
 				move_z_axis = 0;
+				if (holdZ) {
+					socket.emit('command', options.port, 'gcode', '\x85');
+				}
 			}
 		});
 
@@ -404,12 +408,15 @@ module.exports = function(options, callback) {
 				holdZ = false;
 				setTimeout(function() {
 					holdZ = true;
-				}, repeat);
+			 }, repeat);
 			}
 		});
 		controller.on('x:release', function(data) {
 			if (r1) {
 				move_z_axis = 0;
+				if (holdZ) {
+					socket.emit('command', options.port, 'gcode', '\x85');
+				}
 			}
 		});
 
@@ -532,7 +539,7 @@ module.exports = function(options, callback) {
 		var move_x_axis = 0;
 		var move_y_axis = 0;
 		var move_z_axis = 0;
-
+		var jogFeed = 0;
 
 		// Set Movement of Gantry Based on DPad, and Z-Imput from other buttons
 		function dpad(axis, direction, name) {
@@ -557,15 +564,18 @@ module.exports = function(options, callback) {
 			switch(speed) {
 				case 1:
 					speed = 0.05;
+					jogFeed = 100;
 					break;
 				case 3:
 					speed = 5;
+					jogFeed = 2000;
 					break;
 				default:
 					speed = 0.5;
+					jogFeed = 1000;
 			}
 
-			// Set Movemnt Varables
+			// Set Movement Variables
 			if (axis == "X" && ( move_x_axis < 14 && move_x_axis > -14 )) {
 				// X Axis
 
@@ -574,7 +584,7 @@ module.exports = function(options, callback) {
 					// Positve Movment
 					move_x_axis += speed;
 				} else {
-					// Negitave Movment
+					// Negative Movment
 					move_x_axis += speed * -1;
 				}
 			} else if (axis == "Y" && ( move_y_axis < 14 && move_y_axis > -14 )) {
@@ -594,15 +604,16 @@ module.exports = function(options, callback) {
 		}
 
 		// Move Gantry X | Y
-		///setInterval(dpadMoveAxis, 200);
-		setInterval(dpadMoveAxis, 100);
+		setInterval(dpadMoveAxis, 200);
 		function dpadMoveAxis() {
 			// Check if Axis Needs Moving
 			if (move_x_axis != 0 || move_y_axis != 0 || move_z_axis != 0)
 			{
-				// Send gCode
-				socket.emit('command', options.port, 'gcode', 'G91 G0 X' + move_x_axis + " Y" + move_y_axis + " Z" + move_z_axis);
-				socket.emit('command', options.port, 'gcode', 'G90');  // Switch back to absolute coordinates
+				if (move_z_axis != 0) {
+					jogFeed = 100;
+				}
+				/// Send Jogging gCode
+				socket.emit('command', options.port, 'gcode', "$J=G91 G21 F" + jogFeed + " X" + move_x_axis + " Y" + move_y_axis + " Z" + move_z_axis);
 
 				// Debuging
 				//console.log("DPad MOVE: " + move_y_axis + ': ' + move_y_axis + ': ' + move_z_axis);
@@ -629,12 +640,15 @@ module.exports = function(options, callback) {
 				dpad('Y', true, data);
 				holdY = false;
 				setTimeout(function() {
-   					holdY = true;
+					holdY = true;
 				}, repeat);
 			};
 		});
-    		controller.on('dpadUp:release', function(data) {
+		controller.on('dpadUp:release', function(data) {
 			move_y_axis = 0;
+			if (holdY) {
+				socket.emit('command', options.port, 'gcode', '\x85');
+			}
 		});
 
 		// Y Down
@@ -655,8 +669,11 @@ module.exports = function(options, callback) {
 			};
 		});
 
-    controller.on('dpadDown:release', function(data) {
+		controller.on('dpadDown:release', function(data) {
 			move_y_axis = 0;
+			if (holdY) {
+				socket.emit('command', options.port, 'gcode', '\x85');
+			}
 		});
 
 		// X Right
@@ -676,8 +693,11 @@ module.exports = function(options, callback) {
 				}, repeat);
 			};
 		});
-    		controller.on('dpadRight:release', function(data) {
+			controller.on('dpadRight:release', function(data) {
 			move_x_axis = 0;
+			if (holdX) {
+				socket.emit('command', options.port, 'gcode', '\x85');
+			}
 		});
 
 		// X Left
@@ -697,8 +717,11 @@ module.exports = function(options, callback) {
 				}, repeat);
 			};
 		});
-    		controller.on('dpadLeft:release', function(data) {
+		controller.on('dpadLeft:release', function(data) {
 			move_x_axis = 0;
+			if (holdX) {
+				socket.emit('command', options.port, 'gcode', '\x85');
+			}
 		});
 
 		// ------------------------------------------
