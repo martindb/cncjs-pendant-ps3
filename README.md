@@ -1,3 +1,10 @@
+# My changes
+
+1. Added repeat logic for dpad/Z movements (discrete movements)
+2. Changed gCode movements from G0 to jogging (GRBL 1.1 new syntax)
+
+-------------
+
 # cncjs-pendant-ps3
 Dual Shock / PS3 Bluetooth Remote Pendant for CNCjs
 
